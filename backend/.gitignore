@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+logs/
+*.log
+
+# Test/coverage
+coverage/
+.nyc_output/
+
+# OS/IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

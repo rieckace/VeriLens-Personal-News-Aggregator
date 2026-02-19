@@ -1,0 +1,57 @@
+# -----------------------------
+# Secrets / env files
+# -----------------------------
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# -----------------------------
+# Node / JS
+# -----------------------------
+node_modules/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+**/dist/
+**/dist-ssr/
+**/build/
+**/.next/
+**/.nuxt/
+**/.svelte-kit/
+**/.turbo/
+**/.cache/
+
+coverage/
+.nyc_output/
+
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# -----------------------------
+# IDE / OS
+# -----------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# -----------------------------
+# Azure tooling
+# -----------------------------
+.azure/

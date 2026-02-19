@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80" role="img" aria-label="VeriLens">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 40c10-16 33-26 68-26s58 10 68 26c-10 16-33 26-68 26S22 56 12 40z" fill="none" stroke="#0b1b3a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M18 40c10-13 30-21 62-21s52 8 62 21c-10 13-30 21-62 21S28 53 18 40z" fill="#eaf6ff" opacity="0.98"/>
+  <circle cx="78" cy="40" r="18" fill="url(#g1)"/>
+  <circle cx="78" cy="40" r="10" fill="#0b1b3a"/>
+  <circle cx="84" cy="34" r="4" fill="#ffffff"/>
+  <circle cx="70" cy="44" r="2" fill="#ffffff" opacity="0.85"/>
+  <circle cx="116" cy="52" r="12" fill="none" stroke="url(#g2)" stroke-width="6"/>
+  <path d="M124 60l16 14" stroke="#0b1b3a" stroke-width="8" stroke-linecap="round"/>
+  <rect x="132" y="18" width="6" height="6" fill="#22d3ee"/>
+  <rect x="140" y="22" width="6" height="6" fill="#38bdf8"/>
+  <rect x="148" y="26" width="6" height="6" fill="#6366f1"/>
+</svg>
