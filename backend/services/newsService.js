@@ -3,6 +3,7 @@ const axios = require('axios');
 const Article = require('../models/Article');
 const { scoreText } = require('./sentimentService');
 const { biasScoreFromText, fakeProbabilityFromText } = require('./scoringService');
+const { notifyUsersForNewArticle } = require('./notificationService');
 
 const DEFAULT_CATEGORIES = ['technology', 'sports', 'health', 'business', 'science', 'entertainment'];
 
@@ -111,6 +112,22 @@ async function fetchAndStoreLatestNews({ categories } = {}) {
         { upsert: true }
       );
       if (result.upsertedCount > 0 || result.modifiedCount > 0) upserted += 1;
+
+      // Only create notifications when a new article is inserted.
+      if (result.upsertedCount > 0) {
+        const insertedId =
+          result.upsertedId && typeof result.upsertedId === 'object'
+            ? result.upsertedId._id || result.upsertedId
+            : result.upsertedId;
+        try {
+          const inserted = insertedId
+            ? await Article.findById(insertedId)
+            : await Article.findOne({ url: doc.url });
+          await notifyUsersForNewArticle(inserted);
+        } catch {
+          // ignore notification failures so fetch remains resilient
+        }
+      }
     }
   }
 

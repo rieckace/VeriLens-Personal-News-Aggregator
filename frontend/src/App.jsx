@@ -11,6 +11,7 @@ import ArticlePage from './pages/ArticlePage'
 import BookmarksPage from './pages/BookmarksPage'
 import HistoryPage from './pages/HistoryPage'
 import AnalyticsPage from './pages/AnalyticsPage'
+import NotificationsPage from './pages/NotificationsPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function HomeRedirect() {
@@ -72,6 +73,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
             </ProtectedRoute>
           }
         />

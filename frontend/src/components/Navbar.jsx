@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useNotifications } from '../context/NotificationsContext'
 import veriLensLogo from '../assets/verilens-logo.svg'
 
 function NavItem({ to, label }) {
@@ -22,6 +23,7 @@ function NavItem({ to, label }) {
 
 export default function Navbar() {
   const { user, token, logout } = useAuth()
+  const { unreadCount } = useNotifications()
   const navigate = useNavigate()
 
   return (
@@ -60,6 +62,31 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {token ? (
             <>
+              <button
+                onClick={() => navigate('/notifications')}
+                aria-label="Notifications"
+                className="relative rounded-xl border border-slate-800 bg-slate-900/40 p-2 text-slate-100 hover:bg-slate-900"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                >
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                {unreadCount > 0 ? (
+                  <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-cyan-400 px-1.5 py-0.5 text-[10px] font-bold text-slate-950">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                ) : null}
+              </button>
+
               <div className="hidden sm:block text-right">
                 <div className="text-xs text-slate-400">Signed in as</div>
                 <div className="text-sm font-medium text-slate-100">
