@@ -13,8 +13,8 @@ function Pill({ active, onClick, children }) {
       data-testid={`pref-${String(children)}`}
       className={`rounded-full border px-3 py-2 text-sm font-semibold transition ${
         active
-          ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-100'
-          : 'border-slate-800 bg-slate-950/30 text-slate-200 hover:bg-slate-900'
+          ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
+          : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900'
       }`}
     >
       {children}
@@ -75,9 +75,9 @@ export default function PreferencesPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-8">
-        <h1 className="text-3xl font-semibold text-white">Your preferences</h1>
-        <p className="mt-2 text-slate-300">
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-900 dark:bg-slate-900/30">
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Your preferences</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
           Select the categories you want to see more often.
         </p>
 
@@ -90,20 +90,21 @@ export default function PreferencesPage() {
         </div>
 
         {error ? (
-          <div className="mt-6 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
             {error}
           </div>
         ) : null}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-slate-400">
-            Selected: <span className="font-semibold text-slate-200">{selected.length}</span>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            Selected:{' '}
+            <span className="font-semibold text-slate-900 dark:text-slate-200">{selected.length}</span>
           </div>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setSelected(['technology', 'business', 'science'])}
-              className="rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-900"
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
             >
               Quick set
             </button>

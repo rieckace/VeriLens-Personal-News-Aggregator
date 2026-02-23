@@ -29,9 +29,9 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-8">
-        <h1 className="text-3xl font-semibold text-white">Create your VeriLens account</h1>
-        <p className="mt-2 text-slate-300">Pick categories and start reading smarter.</p>
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-900 dark:bg-slate-900/30">
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Create your VeriLens account</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">Pick categories and start reading smarter.</p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <FormField
@@ -62,7 +62,7 @@ export default function RegisterPage() {
           />
 
           {error ? (
-            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
               {error}
             </div>
           ) : null}
@@ -77,7 +77,7 @@ export default function RegisterPage() {
 
           <div className="text-center text-sm text-slate-400">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-slate-200 hover:underline">
+            <Link to="/login" className="font-semibold text-slate-900 hover:underline dark:text-slate-200">
               Login
             </Link>
           </div>

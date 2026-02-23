@@ -12,13 +12,20 @@ import {
 import Loading from '../components/Loading'
 import StatCard from '../components/StatCard'
 import { getAnalytics } from '../services/analyticsService'
+import { useTheme } from '../context/ThemeContext'
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 export default function AnalyticsPage() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const axisTickColor = isDark ? '#cbd5e1' : '#334155'
+  const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(15,23,42,0.08)'
+  const legendColor = axisTickColor
 
   useEffect(() => {
     let mounted = true
@@ -85,11 +92,11 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-6">
-        <h1 className="text-3xl font-semibold text-white">Analytics dashboard</h1>
-        <p className="mt-1 text-sm text-slate-300">A snapshot of your reading behavior.</p>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Analytics dashboard</h1>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">A snapshot of your reading behavior.</p>
         {error ? (
-          <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
             {error}
           </div>
         ) : null}
@@ -105,30 +112,30 @@ export default function AnalyticsPage() {
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-6">
-          <div className="text-sm font-semibold text-white">Category preference</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
+          <div className="text-sm font-semibold text-slate-900 dark:text-white">Category preference</div>
           <div className="mt-4">
             <Bar
               data={categoryChart}
               options={{
                 plugins: { legend: { display: false } },
                 scales: {
-                  x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,0.1)' } },
-                  y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,0.1)' } },
+                  x: { ticks: { color: axisTickColor }, grid: { color: gridColor } },
+                  y: { ticks: { color: axisTickColor }, grid: { color: gridColor } },
                 },
               }}
             />
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-6">
-          <div className="text-sm font-semibold text-white">Sentiment distribution</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
+          <div className="text-sm font-semibold text-slate-900 dark:text-white">Sentiment distribution</div>
           <div className="mt-4">
             <Pie
               data={sentimentChart}
               options={{
                 plugins: {
-                  legend: { labels: { color: '#cbd5e1' } },
+                  legend: { labels: { color: legendColor } },
                 },
               }}
             />
@@ -136,13 +143,16 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-6">
-        <div className="text-sm font-semibold text-white">Reading frequency (last 7 days)</div>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
+        <div className="text-sm font-semibold text-slate-900 dark:text-white">Reading frequency (last 7 days)</div>
         <div className="mt-4 grid grid-cols-7 gap-2">
           {(data?.readingFrequencyLast7Days || []).map((v, idx) => (
-            <div key={idx} className="rounded-2xl border border-slate-900 bg-slate-950/20 p-3 text-center">
-              <div className="text-xs text-slate-500">{idx}d</div>
-              <div className="mt-1 text-lg font-semibold text-white">{v}</div>
+            <div
+              key={idx}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center dark:border-slate-900 dark:bg-slate-950/20"
+            >
+              <div className="text-xs text-slate-600 dark:text-slate-500">{idx}d</div>
+              <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{v}</div>
             </div>
           ))}
         </div>

@@ -93,11 +93,11 @@ export default function FeedPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-900 bg-slate-900/30 p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Your feed</h1>
-            <p className="mt-1 text-sm text-slate-300">
+            <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Your feed</h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               Search, filter and bookmark articles. Sentiment and bias are pre-scored.
             </p>
           </div>
@@ -114,34 +114,34 @@ export default function FeedPage() {
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           <label className="block">
-            <div className="mb-1 text-sm font-medium text-slate-200">Search</div>
+            <div className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">Search</div>
             <input
               data-testid="feed-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Try: AI, Olympics, vaccine…"
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none ring-indigo-500/30 focus:ring-4"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
           <label className="block">
-            <div className="mb-1 text-sm font-medium text-slate-200">Category</div>
+            <div className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">Category</div>
             <input
               data-testid="feed-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="technology, sports…"
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none ring-indigo-500/30 focus:ring-4"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
           <label className="block">
-            <div className="mb-1 text-sm font-medium text-slate-200">Sentiment</div>
+            <div className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">Sentiment</div>
             <select
               data-testid="feed-sentiment"
               value={sentiment}
               onChange={(e) => setSentiment(e.target.value)}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-3 text-sm text-slate-100 outline-none ring-indigo-500/30 focus:ring-4"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100"
             >
               {SENTIMENTS.map((s) => (
                 <option key={s || 'all'} value={s}>
@@ -156,7 +156,7 @@ export default function FeedPage() {
           <button
             onClick={() => loadFeed(1)}
             data-testid="feed-apply"
-            className="rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             Apply filters
           </button>
@@ -168,18 +168,18 @@ export default function FeedPage() {
               loadFeed(1)
             }}
             data-testid="feed-reset"
-            className="rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             Reset
           </button>
-          <div className="ml-auto text-sm text-slate-400">
-            Showing <span className="font-semibold text-slate-200">{items.length}</span> of{' '}
-            <span className="font-semibold text-slate-200">{total}</span>
+          <div className="ml-auto text-sm text-slate-600 dark:text-slate-400">
+            Showing <span className="font-semibold text-slate-900 dark:text-slate-200">{items.length}</span> of{' '}
+            <span className="font-semibold text-slate-900 dark:text-slate-200">{total}</span>
           </div>
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
             {error}
           </div>
         ) : null}
@@ -200,22 +200,22 @@ export default function FeedPage() {
         </div>
       )}
 
-      <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-900 bg-slate-900/30 p-4 sm:flex-row">
-        <div className="text-sm text-slate-300">
-          Page <span className="font-semibold text-white">{page}</span> / {totalPages}
+      <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row dark:border-slate-900 dark:bg-slate-900/30">
+        <div className="text-sm text-slate-600 dark:text-slate-300">
+          Page <span className="font-semibold text-slate-900 dark:text-white">{page}</span> / {totalPages}
         </div>
         <div className="flex gap-2">
           <button
             disabled={page <= 1 || loading}
             onClick={() => loadFeed(page - 1)}
-            className="rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             Prev
           </button>
           <button
             disabled={page >= totalPages || loading}
             onClick={() => loadFeed(page + 1)}
-            className="rounded-xl border border-slate-800 bg-slate-950/30 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             Next
           </button>
