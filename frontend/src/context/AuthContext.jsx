@@ -19,9 +19,9 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function login(email, password) {
+  async function login(email, password, rememberMe = true) {
     const data = await loginUser({ email, password })
-    setToken(data.token)
+    setToken(data.token, { persist: rememberMe })
     setTokenState(data.token)
     setUser(data.user)
     return data
@@ -29,9 +29,11 @@ export function AuthProvider({ children }) {
 
   async function register(name, email, password) {
     const data = await registerUser({ name, email, password })
-    setToken(data.token)
-    setTokenState(data.token)
-    setUser(data.user)
+    // Registration should not implicitly log the user in.
+    // Force an unauthenticated state so the app can redirect to the login page.
+    clearToken()
+    setTokenState(null)
+    setUser(null)
     return data
   }
 

@@ -19,7 +19,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await register(name, email, password)
-      navigate('/preferences')
+      navigate('/login', { replace: true })
     } catch (err) {
       setError(err?.response?.data?.message || 'Registration failed')
     } finally {

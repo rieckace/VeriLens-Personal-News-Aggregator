@@ -64,7 +64,13 @@ def main():
         type_into(driver, '[data-testid="register-password"]', password)
         click(driver, '[data-testid="register-submit"]')
 
-        # Preferences page
+        # Login page (after successful registration)
+        wait_for(driver, '[data-testid="login-submit"]', timeout=25)
+        type_into(driver, '[data-testid="login-email"]', email)
+        type_into(driver, '[data-testid="login-password"]', password)
+        click(driver, '[data-testid="login-submit"]')
+
+        # Preferences page (after login)
         wait_for(driver, '[data-testid="preferences-save"]', timeout=25)
         click(driver, '[data-testid="pref-technology"]')
         click(driver, '[data-testid="preferences-save"]')

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNotifications } from '../context/NotificationsContext'
@@ -27,6 +28,33 @@ export default function Navbar() {
   const { unreadCount } = useNotifications()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const profileMenuRef = useRef(null)
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return
+
+    function onKeyDown(e) {
+      if (e.key === 'Escape') setIsProfileMenuOpen(false)
+    }
+
+    function onPointerDown(e) {
+      const el = profileMenuRef.current
+      if (!el) return
+      if (!el.contains(e.target)) setIsProfileMenuOpen(false)
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('mousedown', onPointerDown)
+    window.addEventListener('touchstart', onPointerDown)
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('mousedown', onPointerDown)
+      window.removeEventListener('touchstart', onPointerDown)
+    }
+  }, [isProfileMenuOpen])
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/70 backdrop-blur dark:border-slate-900 dark:bg-slate-950/70">
@@ -132,22 +160,59 @@ export default function Navbar() {
                 ) : null}
               </button>
 
-              <div className="hidden sm:block text-right">
-                <div className="text-xs text-slate-600 dark:text-slate-400">Signed in as</div>
-                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                  {user?.name || user?.email || 'User'}
-                </div>
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  type="button"
+                  aria-label="Profile menu"
+                  aria-haspopup="menu"
+                  aria-expanded={isProfileMenuOpen}
+                  onClick={() => setIsProfileMenuOpen((v) => !v)}
+                  className="rounded-xl border border-slate-300 bg-white/60 p-2 text-slate-700 hover:bg-white dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-900"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5" r="1.8" />
+                    <circle cx="12" cy="12" r="1.8" />
+                    <circle cx="12" cy="19" r="1.8" />
+                  </svg>
+                </button>
+
+                {isProfileMenuOpen ? (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-900 dark:bg-slate-950"
+                  >
+                    <div className="px-3 py-2">
+                      <div className="text-xs text-slate-600 dark:text-slate-400">Profile</div>
+                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {user?.name || user?.email || 'User'}
+                      </div>
+                      {user?.email ? (
+                        <div className="text-xs text-slate-600 dark:text-slate-400">{user.email}</div>
+                      ) : null}
+                    </div>
+                    <div className="h-px bg-slate-200 dark:bg-slate-900" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      data-testid="nav-logout"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false)
+                        logout()
+                        navigate('/login')
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm font-medium text-slate-900 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-900"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : null}
               </div>
-              <button
-                onClick={() => {
-                  logout()
-                  navigate('/login')
-                }}
-                data-testid="nav-logout"
-                className="rounded-xl border border-slate-300 bg-white/60 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-white dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-900"
-              >
-                Logout
-              </button>
             </>
           ) : (
             <>

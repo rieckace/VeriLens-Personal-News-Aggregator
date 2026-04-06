@@ -3,8 +3,7 @@ import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
+import AuthPage from './pages/AuthPage'
 import PreferencesPage from './pages/PreferencesPage'
 import FeedPage from './pages/FeedPage'
 import ArticlePage from './pages/ArticlePage'
@@ -24,8 +23,8 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
 
         <Route
           path="/preferences"

@@ -13,7 +13,7 @@ export default function Layout({ children }) {
 
       <footer className="border-t border-slate-200 py-8 dark:border-slate-900">
         <div className="mx-auto max-w-6xl px-4 text-xs text-slate-600 dark:text-slate-500">
-          VeriLens · AI-Powered Personalized News Aggregator · Developed by Rieck_Ace.
+          VeriLens-AI-Powered Personalized News Aggregator · Developed by Rieck_Ace.
         </div>
       </footer>
     </div>
