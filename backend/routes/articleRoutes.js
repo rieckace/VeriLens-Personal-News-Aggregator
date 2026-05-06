@@ -4,6 +4,7 @@ const {
   refreshArticles,
   getPersonalizedFeed,
   getArticleById,
+  enrichArticle,
   markRead,
   addBookmark,
   removeBookmark,
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post('/refresh', protect, refreshArticles);
 router.get('/feed', protect, getPersonalizedFeed);
 router.get('/:id', protect, getArticleById);
+router.post('/:id/enrich', protect, enrichArticle);
 router.post('/:id/read', protect, markRead);
 router.post('/:id/bookmark', protect, addBookmark);
 router.delete('/:id/bookmark', protect, removeBookmark);

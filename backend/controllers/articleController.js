@@ -3,6 +3,7 @@ const User = require('../models/User');
 
 const { fetchAndStoreLatestNews } = require('../services/newsService');
 const { buildPersonalizedFeed } = require('../services/recommendationService');
+const { generateArticleEnrichment } = require('../services/openaiService');
 
 async function refreshArticles(req, res, next) {
   try {
@@ -43,6 +44,51 @@ async function getArticleById(req, res, next) {
       return res.status(404).json({ message: 'Article not found' });
     }
     return res.json({ article });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function enrichArticle(req, res, next) {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'Article not found' });
+    }
+
+    // If we already have AI enrichment, return it (avoid repeated API calls).
+    if (article.aiSummary && article.aiGeneratedAt) {
+      return res.json({ article });
+    }
+
+    try {
+      const out = await generateArticleEnrichment({
+        title: article.title,
+        description: article.description,
+        content: article.content,
+        source: article.source,
+        url: article.url,
+      });
+
+      article.aiSummary = out.summary;
+      article.aiTakeaways = out.takeaways;
+      article.aiTopics = out.topics;
+      article.aiProvider = out.provider || 'openai';
+      article.aiModel = out.model;
+      article.aiGeneratedAt = new Date();
+      article.aiError = undefined;
+      await article.save();
+
+      return res.json({ article });
+    } catch (err) {
+      article.aiProvider = article.aiProvider || 'openai';
+      article.aiGeneratedAt = new Date();
+      article.aiError = err?.message || 'AI enrichment failed';
+      await article.save();
+
+      const status = err?.statusCode || err?.response?.status || 502;
+      return res.status(status).json({ message: article.aiError });
+    }
   } catch (err) {
     return next(err);
   }
@@ -101,6 +147,7 @@ module.exports = {
   refreshArticles,
   getPersonalizedFeed,
   getArticleById,
+  enrichArticle,
   markRead,
   addBookmark,
   removeBookmark,

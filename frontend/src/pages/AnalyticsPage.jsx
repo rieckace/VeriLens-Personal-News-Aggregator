@@ -91,9 +91,9 @@ export default function AnalyticsPage() {
   if (loading) return <Loading label="Loading analytics…" />
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="analytics-page">
       <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-900 dark:bg-slate-900/30">
-        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Analytics dashboard</h1>
+        <h1 data-testid="analytics-title" className="text-3xl font-semibold text-slate-900 dark:text-white">Analytics dashboard</h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">A snapshot of your reading behavior.</p>
         {error ? (
           <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">

@@ -138,6 +138,7 @@ export default function Navbar() {
               <button
                 onClick={() => navigate('/notifications')}
                 aria-label="Notifications"
+                data-testid="nav-notifications"
                 className="relative rounded-xl border border-slate-300 bg-white/60 p-2 text-slate-700 hover:bg-white dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-900"
               >
                 <svg
@@ -166,6 +167,7 @@ export default function Navbar() {
                   aria-label="Profile menu"
                   aria-haspopup="menu"
                   aria-expanded={isProfileMenuOpen}
+                  data-testid="nav-profile-menu"
                   onClick={() => setIsProfileMenuOpen((v) => !v)}
                   className="rounded-xl border border-slate-300 bg-white/60 p-2 text-slate-700 hover:bg-white dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-900"
                 >

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Badge from '../components/Badge'
 import Loading from '../components/Loading'
-import { addBookmark, getArticleById, markRead, removeBookmark } from '../services/articleService'
+import { addBookmark, enrichArticle, getArticleById, markRead, removeBookmark } from '../services/articleService'
 import { getBookmarks } from '../services/userService'
 
 export default function ArticlePage() {
@@ -12,6 +12,8 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
 
   useEffect(() => {
     let mounted = true
@@ -60,6 +62,20 @@ export default function ArticlePage() {
     }
   }
 
+  async function onGenerateAi() {
+    if (!article?._id) return
+    setAiError('')
+    setAiLoading(true)
+    try {
+      const out = await enrichArticle(article._id)
+      setArticle(out.article)
+    } catch (err) {
+      setAiError(err?.response?.data?.message || 'AI summary failed')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   if (loading) return <Loading label="Loading article…" />
 
   if (error) {
@@ -89,6 +105,7 @@ export default function ArticlePage() {
         </Link>
         <button
           onClick={toggleBookmark}
+          data-testid="article-bookmark"
           className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
             isBookmarked
               ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
@@ -112,7 +129,7 @@ export default function ArticlePage() {
           ) : null}
         </div>
 
-        <h1 className="mt-4 text-3xl font-semibold leading-tight text-slate-900 dark:text-white">{article.title}</h1>
+        <h1 data-testid="article-title" className="mt-4 text-3xl font-semibold leading-tight text-slate-900 dark:text-white">{article.title}</h1>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Badge tone={sentiment}>Sentiment: {sentiment}</Badge>
@@ -120,6 +137,71 @@ export default function ArticlePage() {
           <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200">
             Fake probability: {fake}%
           </span>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-900 dark:bg-slate-950/20">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">AI summary</div>
+              <div className="mt-1 text-base font-semibold text-slate-900 dark:text-white">
+                Quick takeaways for this article
+              </div>
+            </div>
+            {!article.aiSummary ? (
+              <button
+                onClick={onGenerateAi}
+                disabled={aiLoading}
+                data-testid="article-ai-generate"
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-95 disabled:opacity-60"
+              >
+                {aiLoading ? 'Generating…' : 'Generate'}
+              </button>
+            ) : null}
+          </div>
+
+          {aiError ? (
+            <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
+              {aiError}
+            </div>
+          ) : null}
+
+          {article.aiSummary ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">{article.aiSummary}</p>
+
+              {Array.isArray(article.aiTakeaways) && article.aiTakeaways.length ? (
+                <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                  {article.aiTakeaways.slice(0, 5).map((t) => (
+                    <li key={t} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              {Array.isArray(article.aiTopics) && article.aiTopics.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {article.aiTopics.slice(0, 8).map((topic) => (
+                    <span
+                      key={topic}
+                      className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
+              {article.aiModel ? (
+                <div className="text-xs text-slate-500 dark:text-slate-400">Model: {article.aiModel}</div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+              Click “Generate” to create an AI summary for this article.
+            </div>
+          )}
         </div>
 
         {article.imageUrl ? (

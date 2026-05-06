@@ -38,6 +38,9 @@ __pycache__/
 venv/
 .pytest_cache/
 
+# Selenium artifacts (screenshots / page HTML)
+tests/selenium/artifacts/
+
 # -----------------------------
 # IDE / OS
 # -----------------------------

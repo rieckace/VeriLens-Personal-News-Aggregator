@@ -15,6 +15,15 @@ const articleSchema = new mongoose.Schema(
     biasLabel: { type: String, default: 'center' },
     fakeProbability: { type: Number, default: 0 },
     publishedAt: { type: Date },
+
+    // Optional AI enrichment (generated on-demand)
+    aiSummary: { type: String },
+    aiTakeaways: { type: [String], default: undefined },
+    aiTopics: { type: [String], default: undefined },
+    aiProvider: { type: String },
+    aiModel: { type: String },
+    aiGeneratedAt: { type: Date },
+    aiError: { type: String },
   },
   { timestamps: true }
 );

@@ -15,6 +15,11 @@ export async function getArticleById(id) {
   return data
 }
 
+export async function enrichArticle(id) {
+  const { data } = await api.post(`/articles/${id}/enrich`)
+  return data
+}
+
 export async function markRead(id) {
   const { data } = await api.post(`/articles/${id}/read`)
   return data
