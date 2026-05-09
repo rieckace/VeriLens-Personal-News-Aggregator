@@ -12,6 +12,36 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
 
+def _strip_chromedriver_from_path() -> None:
+    """Remove any PATH entries that contain chromedriver.exe.
+
+    This prevents Selenium/Selenium Manager from picking up an outdated driver
+    from a user's PATH (common on Windows after manual ChromeDriver downloads).
+    Only affects the current Python process.
+    """
+
+    path_value = os.environ.get("PATH")
+    if not path_value:
+        return
+
+    parts = path_value.split(os.pathsep)
+    kept: list[str] = []
+
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            if (Path(part) / "chromedriver.exe").exists():
+                continue
+        except Exception:
+            # If we can't inspect it, keep it.
+            pass
+        kept.append(part)
+
+    os.environ["PATH"] = os.pathsep.join(kept)
+
+
 def env_bool(name: str, default: bool) -> bool:
     v = os.getenv(name)
     if v is None:
@@ -52,32 +82,71 @@ def unique_email() -> str:
 
 
 def create_chrome_driver(headless: bool) -> webdriver.Chrome:
+    _strip_chromedriver_from_path()
+
     chrome_options = webdriver.ChromeOptions()
     if headless:
         chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--window-size=1400,900")
 
+    # Reduce noisy Chrome/ChromeDriver output in terminal
+    chrome_options.add_argument("--log-level=3")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+    # Avoid push-messaging / background network noise during automation
+    chrome_options.add_argument("--disable-background-networking")
+    chrome_options.add_argument("--disable-sync")
+    chrome_options.add_argument("--disable-default-apps")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--no-first-run")
+    chrome_options.add_argument("--no-default-browser-check")
+    chrome_options.add_argument("--disable-features=PushMessaging")
+
     # 1) Preferred: Selenium Manager (Selenium 4+)
     try:
-        return webdriver.Chrome(options=chrome_options)
+        service = Service(log_output=os.devnull)
+        return webdriver.Chrome(service=service, options=chrome_options)
     except Exception as first_error:
         # 2) Fallback: webdriver-manager
         driver_path = ChromeDriverManager().install()
         resolved = Path(driver_path)
 
-        candidates = [resolved]
-        if resolved.suffix.lower() != ".exe":
-            candidates.append(resolved.with_suffix(".exe"))
-        candidates.append(resolved.parent / "chromedriver.exe")
+        def is_chromedriver_exe(p: Path) -> bool:
+            try:
+                return p.exists() and p.is_file() and p.name.lower() == "chromedriver.exe"
+            except Exception:
+                return False
 
-        chromedriver_exe = next((p for p in candidates if p.exists()), None)
+        chromedriver_exe = None
+
+        # webdriver-manager sometimes returns a non-exe path (e.g., THIRD_PARTY_NOTICES.chromedriver)
+        # so we must search for the actual chromedriver.exe near that path.
+        if is_chromedriver_exe(resolved):
+            chromedriver_exe = resolved
+        else:
+            search_roots = []
+            if resolved.exists():
+                search_roots.append(resolved.parent)
+                search_roots.append(resolved)
+
+            for root in search_roots:
+                try:
+                    if root.is_dir():
+                        hit = next((p for p in root.rglob("chromedriver.exe") if is_chromedriver_exe(p)), None)
+                        if hit is not None:
+                            chromedriver_exe = hit
+                            break
+                except Exception:
+                    continue
+
         if chromedriver_exe is None:
             raise RuntimeError(
-                "Failed to locate a ChromeDriver executable. "
+                "Failed to locate a ChromeDriver executable (chromedriver.exe). "
                 f"webdriver-manager returned: {driver_path}"
             ) from first_error
 
-        service = Service(executable_path=str(chromedriver_exe))
+        service = Service(executable_path=str(chromedriver_exe), log_output=os.devnull)
         try:
             return webdriver.Chrome(service=service, options=chrome_options)
         except Exception as e:
@@ -136,7 +205,12 @@ def ensure_logged_in(driver, *, app_url: str, email: str | None, password: str, 
 
 
 def run_with_driver(test_fn):
-    app_url = os.getenv("APP_URL", "http://localhost:5173")
+    app_url = (os.getenv("APP_URL", "http://localhost:5173") or "").strip()
+    app_url = app_url.rstrip("/")
+    if app_url and not (app_url.startswith("http://") or app_url.startswith("https://")):
+        # Be forgiving if the user sets APP_URL like "localhost:5173"
+        app_url = f"http://{app_url}"
+
     password = os.getenv("TEST_PASSWORD", "Password@123")
     headless = env_bool("HEADLESS", False)
     artifacts_dir = os.getenv(

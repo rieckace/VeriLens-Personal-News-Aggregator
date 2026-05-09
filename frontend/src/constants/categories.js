@@ -6,4 +6,6 @@ export const CATEGORIES = [
   'science',
   'entertainment',
   'general',
+  'politics',
+  'war',
 ]

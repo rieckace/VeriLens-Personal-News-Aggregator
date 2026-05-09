@@ -3,10 +3,15 @@ import ArticleCard from '../components/ArticleCard'
 import Loading from '../components/Loading'
 import { addBookmark, getFeed, refreshArticles, removeBookmark } from '../services/articleService'
 import { getBookmarks } from '../services/userService'
+import { getAnalytics } from '../services/analyticsService'
+import { CATEGORIES } from '../constants/categories'
+import { useAuth } from '../context/AuthContext'
 
 const SENTIMENTS = ['', 'positive', 'neutral', 'negative']
 
 export default function FeedPage() {
+  const { user } = useAuth()
+
   const [items, setItems] = useState([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -20,6 +25,8 @@ export default function FeedPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
 
+  const [defaultCategoryHint, setDefaultCategoryHint] = useState('')
+
   const [bookmarks, setBookmarks] = useState([])
   const bookmarkedIds = useMemo(() => new Set(bookmarks.map((b) => b._id)), [bookmarks])
 
@@ -28,11 +35,21 @@ export default function FeedPage() {
     setBookmarks(data.bookmarks || [])
   }
 
-  async function loadFeed(nextPage = 1) {
+  async function loadFeed(nextPage = 1, overrides = {}) {
     setError('')
     setLoading(true)
     try {
-      const data = await getFeed({ page: nextPage, limit, search: search || undefined, category: category || undefined, sentiment: sentiment || undefined })
+      const nextSearch = overrides.search !== undefined ? overrides.search : search
+      const nextCategory = overrides.category !== undefined ? overrides.category : category
+      const nextSentiment = overrides.sentiment !== undefined ? overrides.sentiment : sentiment
+
+      const data = await getFeed({
+        page: nextPage,
+        limit,
+        search: nextSearch || undefined,
+        category: nextCategory || undefined,
+        sentiment: nextSentiment || undefined,
+      })
       setItems(data.articles || [])
       setTotal(data.total || 0)
       setPage(data.page || nextPage)
@@ -46,12 +63,40 @@ export default function FeedPage() {
   useEffect(() => {
     let mounted = true
     async function boot() {
+      let mostReadCategory = ''
+      try {
+        const a = await getAnalytics()
+        mostReadCategory = String(a?.mostReadCategory || '').toLowerCase().trim()
+      } catch {
+        // ignore
+      }
+
+      const prefs = Array.isArray(user?.preferences)
+        ? user.preferences.map((p) => String(p).toLowerCase().trim()).filter(Boolean)
+        : []
+      const hasPrefs = prefs.length > 0
+      const canApplyDefault =
+        mostReadCategory &&
+        mostReadCategory !== 'unknown' &&
+        (!hasPrefs || prefs.includes(mostReadCategory))
+
       try {
         await loadBookmarks()
       } catch {
         // ignore
       }
-      if (mounted) await loadFeed(1)
+
+      if (!mounted) return
+
+      if (canApplyDefault) {
+        setCategory(mostReadCategory)
+        setDefaultCategoryHint(mostReadCategory)
+        await loadFeed(1, { category: mostReadCategory })
+      } else {
+        // Don't force a category filter; let the backend apply preference-based filtering.
+        setDefaultCategoryHint('')
+        await loadFeed(1)
+      }
     }
     boot()
     return () => {
@@ -126,13 +171,28 @@ export default function FeedPage() {
 
           <label className="block">
             <div className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">Category</div>
-            <input
+            <select
               data-testid="feed-category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="technology, sports…"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100 dark:placeholder:text-slate-500"
-            />
+              onChange={(e) => {
+                setCategory(e.target.value)
+                setDefaultCategoryHint('')
+              }}
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100"
+            >
+              <option value="" className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+                all
+              </option>
+              {CATEGORIES.map((c) => (
+                <option
+                  key={c}
+                  value={c}
+                  className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100"
+                >
+                  {c}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label className="block">
@@ -144,7 +204,11 @@ export default function FeedPage() {
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-indigo-500/30 focus:ring-4 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-100"
             >
               {SENTIMENTS.map((s) => (
-                <option key={s || 'all'} value={s}>
+                <option
+                  key={s || 'all'}
+                  value={s}
+                  className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100"
+                >
                   {s ? s : 'all'}
                 </option>
               ))}
@@ -165,6 +229,7 @@ export default function FeedPage() {
               setSearch('')
               setCategory('')
               setSentiment('')
+              setDefaultCategoryHint('')
               loadFeed(1)
             }}
             data-testid="feed-reset"
@@ -172,6 +237,12 @@ export default function FeedPage() {
           >
             Reset
           </button>
+          {defaultCategoryHint ? (
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              Defaulting to your most-read category:{' '}
+              <span className="font-semibold text-slate-900 dark:text-slate-200">{defaultCategoryHint}</span>
+            </div>
+          ) : null}
           <div className="ml-auto text-sm text-slate-600 dark:text-slate-400">
             Showing <span className="font-semibold text-slate-900 dark:text-slate-200">{items.length}</span> of{' '}
             <span className="font-semibold text-slate-900 dark:text-slate-200">{total}</span>

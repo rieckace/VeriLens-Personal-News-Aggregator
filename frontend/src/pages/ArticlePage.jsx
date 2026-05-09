@@ -4,6 +4,7 @@ import Badge from '../components/Badge'
 import Loading from '../components/Loading'
 import { addBookmark, enrichArticle, getArticleById, markRead, removeBookmark } from '../services/articleService'
 import { getBookmarks } from '../services/userService'
+import { getSharableUrlForArticle, shareLink } from '../utils/share'
 
 export default function ArticlePage() {
   const { id } = useParams()
@@ -14,6 +15,7 @@ export default function ArticlePage() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
+  const [shareState, setShareState] = useState({ label: 'Share', busy: false })
 
   useEffect(() => {
     let mounted = true
@@ -76,6 +78,27 @@ export default function ArticlePage() {
     }
   }
 
+  async function onShare() {
+    if (!article) return
+    if (shareState.busy) return
+    setShareState({ label: 'Sharing…', busy: true })
+    try {
+      const url = getSharableUrlForArticle(article)
+      const result = await shareLink({ title: article?.title, text: article?.description, url })
+      if (result?.method === 'clipboard') {
+        setShareState({ label: 'Copied', busy: false })
+        window.setTimeout(() => setShareState({ label: 'Share', busy: false }), 1800)
+      } else if (result?.aborted) {
+        setShareState({ label: 'Share', busy: false })
+      } else {
+        setShareState({ label: 'Shared', busy: false })
+        window.setTimeout(() => setShareState({ label: 'Share', busy: false }), 1200)
+      }
+    } catch {
+      setShareState({ label: 'Share', busy: false })
+    }
+  }
+
   if (loading) return <Loading label="Loading article…" />
 
   if (error) {
@@ -103,17 +126,29 @@ export default function ArticlePage() {
         <Link to="/feed" className="text-sm font-semibold text-slate-700 hover:underline dark:text-slate-200">
           ← Back to feed
         </Link>
-        <button
-          onClick={toggleBookmark}
-          data-testid="article-bookmark"
-          className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-            isBookmarked
-              ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
-              : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900'
-          }`}
-        >
-          {isBookmarked ? 'Remove bookmark' : 'Bookmark'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onShare}
+            disabled={shareState.busy}
+            data-testid="article-share"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 disabled:opacity-70 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
+            title="Share"
+          >
+            {shareState.label}
+          </button>
+
+          <button
+            onClick={toggleBookmark}
+            data-testid="article-bookmark"
+            className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+              isBookmarked
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
+                : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900'
+            }`}
+          >
+            {isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+          </button>
+        </div>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-900 dark:bg-slate-900/30">

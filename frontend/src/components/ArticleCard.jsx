@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Badge from './Badge'
+import { getSharableUrlForArticle, shareLink } from '../utils/share'
 
 function formatDate(value) {
   if (!value) return ''
@@ -14,6 +16,28 @@ export default function ArticleCard({ article, isBookmarked, onToggleBookmark })
   const sentiment = article.sentimentLabel || 'neutral'
   const bias = article.biasLabel || 'center'
   const fake = Math.round((article.fakeProbability || 0) * 100)
+
+  const [shareState, setShareState] = useState({ label: 'Share', busy: false })
+
+  async function onShare() {
+    if (shareState.busy) return
+    setShareState({ label: 'Sharing…', busy: true })
+    try {
+      const url = getSharableUrlForArticle(article)
+      const result = await shareLink({ title: article?.title, text: article?.description, url })
+      if (result?.method === 'clipboard') {
+        setShareState({ label: 'Copied', busy: false })
+        window.setTimeout(() => setShareState({ label: 'Share', busy: false }), 1800)
+      } else if (result?.aborted) {
+        setShareState({ label: 'Share', busy: false })
+      } else {
+        setShareState({ label: 'Shared', busy: false })
+        window.setTimeout(() => setShareState({ label: 'Share', busy: false }), 1200)
+      }
+    } catch {
+      setShareState({ label: 'Share', busy: false })
+    }
+  }
 
   return (
     <div
@@ -37,18 +61,30 @@ export default function ArticleCard({ article, isBookmarked, onToggleBookmark })
           </div>
         </div>
 
-        <button
-          onClick={() => onToggleBookmark?.(article)}
-          data-testid={`bookmark-${article._id}`}
-          className={`shrink-0 rounded-xl border px-3 py-2 text-sm font-semibold transition ${
-            isBookmarked
-              ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
-              : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900'
-          }`}
-          title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={onShare}
+            disabled={shareState.busy}
+            data-testid={`share-${article._id}`}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 disabled:opacity-70 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900"
+            title="Share"
+          >
+            {shareState.label}
+          </button>
+
+          <button
+            onClick={() => onToggleBookmark?.(article)}
+            data-testid={`bookmark-${article._id}`}
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+              isBookmarked
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-400/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:bg-indigo-500/20'
+                : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-200 dark:hover:bg-slate-900'
+            }`}
+            title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+          >
+            {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+          </button>
+        </div>
       </div>
 
       {article.description ? (
