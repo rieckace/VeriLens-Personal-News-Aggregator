@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
 import { useAuth } from './context/AuthContext'
 
 import AuthPage from './pages/AuthPage'
@@ -11,6 +12,9 @@ import BookmarksPage from './pages/BookmarksPage'
 import HistoryPage from './pages/HistoryPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import NotificationsPage from './pages/NotificationsPage'
+import CommunityPage from './pages/CommunityPage'
+import SubmitCommunityNewsPage from './pages/SubmitCommunityNewsPage'
+import AdminCommunityModerationPage from './pages/AdminCommunityModerationPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function HomeRedirect() {
@@ -82,6 +86,32 @@ export default function App() {
             <ProtectedRoute>
               <NotificationsPage />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <CommunityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community/submit"
+          element={
+            <ProtectedRoute>
+              <SubmitCommunityNewsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/community"
+          element={
+            <AdminRoute>
+              <AdminCommunityModerationPage />
+            </AdminRoute>
           }
         />
 

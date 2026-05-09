@@ -7,12 +7,16 @@ const path = require('path');
 
 const { connectDb } = require('./config/db');
 const { scheduleNewsFetch } = require('./services/newsScheduler');
+const { bootstrapAdminUsers } = require('./services/adminBootstrap');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const submissionRoutes = require('./routes/submissionRoutes');
+const adminSubmissionRoutes = require('./routes/adminSubmissionRoutes');
+const adminUserRoutes = require('./routes/adminUserRoutes');
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
@@ -70,6 +74,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/submissions', submissionRoutes);
+app.use('/api/admin/submissions', adminSubmissionRoutes);
+app.use('/api/admin/users', adminUserRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -78,6 +85,16 @@ const port = process.env.PORT || 5000;
 
 (async () => {
   await connectDb();
+  try {
+    const { promoted } = await bootstrapAdminUsers();
+    if (promoted) {
+      // eslint-disable-next-line no-console
+      console.log(`Bootstrapped admin users: promoted ${promoted}`);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('Admin bootstrap skipped:', err?.message || err);
+  }
   scheduleNewsFetch();
   app.listen(port, () => {
     // eslint-disable-next-line no-console

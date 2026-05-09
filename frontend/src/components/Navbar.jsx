@@ -78,10 +78,12 @@ export default function Navbar() {
         {token ? (
           <nav className="hidden items-center gap-1 md:flex">
             <NavItem to="/feed" label="Feed" />
+            <NavItem to="/community" label="Community" />
             <NavItem to="/bookmarks" label="Bookmarks" />
             <NavItem to="/history" label="History" />
             <NavItem to="/analytics" label="Analytics" />
             <NavItem to="/preferences" label="Preferences" />
+            {user?.role === 'admin' ? <NavItem to="/admin/community" label="Admin" /> : null}
           </nav>
         ) : (
           <div className="hidden md:block text-xs text-slate-400">
@@ -197,6 +199,11 @@ export default function Navbar() {
                       {user?.email ? (
                         <div className="text-xs text-slate-600 dark:text-slate-400">{user.email}</div>
                       ) : null}
+                      {user?.role ? (
+                        <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                          Role: <span className="font-semibold text-slate-900 dark:text-slate-100">{user.role}</span>
+                        </div>
+                      ) : null}
                     </div>
                     <div className="h-px bg-slate-200 dark:bg-slate-900" />
                     <button
@@ -239,11 +246,13 @@ export default function Navbar() {
         <div className="mx-auto max-w-6xl px-4 pb-3 md:hidden">
           <div className="flex flex-wrap gap-1">
             <NavItem to="/feed" label="Feed" />
+            <NavItem to="/community" label="Community" />
             <NavItem to="/bookmarks" label="Bookmarks" />
             <NavItem to="/history" label="History" />
             <NavItem to="/analytics" label="Analytics" />
             <NavItem to="/preferences" label="Preferences" />
             <NavItem to="/notifications" label="Notifications" />
+            {user?.role === 'admin' ? <NavItem to="/admin/community" label="Admin" /> : null}
           </div>
         </div>
       ) : null}
